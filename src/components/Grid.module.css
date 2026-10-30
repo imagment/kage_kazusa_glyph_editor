@@ -1,0 +1,11 @@
+/* SPDX-License-Identifier: GPL-3.0-only */
+/* Copyright 2020, 2025  kurgm */
+
+.gridLines {
+  pointer-events: none;
+}
+.gridLines path {
+  fill: none;
+  stroke: #eeeeee;
+  stroke-width: 1px;
+}

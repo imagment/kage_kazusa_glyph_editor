@@ -1,0 +1,18 @@
+/* SPDX-License-Identifier: GPL-3.0-only */
+/* Copyright 2020, 2023, 2025  kurgm */
+
+.partsList {
+  display: grid;
+  grid-template-columns: repeat(4, 60px);
+}
+
+.partsList img {
+  border: 1px solid #aaaaaa;
+  margin: 4px;
+  cursor: pointer;
+}
+
+.partsList img:hover {
+  border: 5px solid #cc0000;
+  margin: 0;
+}

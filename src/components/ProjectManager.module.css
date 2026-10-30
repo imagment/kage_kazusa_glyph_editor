@@ -1,0 +1,74 @@
+.manager {
+  padding: 8px;
+  overflow: auto;
+  background: white;
+  border-top: 1px solid #ccc;
+}
+
+.manager h2 {
+  margin: 0 0 8px;
+  font-size: 16px;
+}
+
+.manager label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: 4px 12px 4px 0;
+}
+
+.buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 6px 0;
+}
+
+.importButton {
+  border: 1px solid #888;
+  border-radius: 3px;
+  padding: 2px 6px;
+  cursor: pointer;
+}
+
+.importButton input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+}
+
+.unicodeRange {
+ display: flex;
+ align-items: center;
+ gap: 6px;
+ margin-top: 6px;
+}
+
+.unicodeRange input {
+ width: 90px;
+}
+
+.glyphList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 8px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.glyphList li {
+  display: flex;
+  align-items: center;
+  border: 1px solid #bbb;
+}
+
+.charButton {
+  min-width: 36px;
+  max-width: 110px;
+  overflow: hidden;
+  font-size: 14px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

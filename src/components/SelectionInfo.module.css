@@ -1,0 +1,32 @@
+/* SPDX-License-Identifier: GPL-3.0-only */
+/* Copyright 2020, 2025  kurgm */
+
+.selectControl {
+  display: flex;
+  flex-flow: column;
+}
+
+.selectedInfo {
+  flex: 1;
+}
+
+.alert {
+  color: red;
+}
+
+.selectionControl {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.selectPrevnextButton {
+  height: 2.5em;
+}
+
+.selectionNum {
+  margin: 0 1em;
+  width: 5em;
+  text-align: center;
+  align-self: center;
+}
