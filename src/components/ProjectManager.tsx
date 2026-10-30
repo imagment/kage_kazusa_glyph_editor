@@ -40,6 +40,7 @@ const ProjectManager = ({ className }: { className?: string }) => {
   const buhinMap = useAppSelector((state) => state.buhinMap);
   const shotai = useAppSelector((state) => state.shotai);
   const [characterInput, setCharacterInput] = useState('');
+  const [activeChar, setActiveChar] = useState<string | null>(null);
   const [unicodeStart, setUnicodeStart] = useState('E000');
   const [unicodeEnd, setUnicodeEnd] = useState('E01F');
   const [glyphs, setGlyphs] = useState<ProjectGlyph[]>(() => {
@@ -66,9 +67,10 @@ const ProjectManager = ({ className }: { className?: string }) => {
   const persist = (next: ProjectGlyph[]) => setGlyphs(next);
 
   const saveCurrent = () => {
-    const characters = Array.from(characterInput.trim()).filter((char) => !/\s/u.test(char));
+    const inputCharacters = Array.from(characterInput.trim()).filter((char) => !/\s/u.test(char));
+    const characters = inputCharacters.length > 0 ? inputCharacters : (activeChar ? [activeChar] : []);
     if (characters.length === 0) {
-      window.alert('Enter one or more characters to save.');
+      window.alert('Enter one or more characters, or select an existing glyph to save.');
       return;
     }
     const next = [...glyphs];
@@ -113,8 +115,18 @@ const ProjectManager = ({ className }: { className?: string }) => {
     persist(next);
   };
 
-  const loadGlyph = (source: string) => dispatch(editorActions.setGlyph(parseGlyph(source)));
-  const deleteGlyph = (char: string) => persist(glyphs.filter((entry) => entry.char !== char));
+  const loadGlyph = (char: string, source: string) => {
+    setActiveChar(char);
+    setCharacterInput(char);
+    dispatch(editorActions.setGlyph(parseGlyph(source)));
+  };
+  const deleteGlyph = (char: string) => {
+    persist(glyphs.filter((entry) => entry.char !== char));
+    if (activeChar === char) {
+      setActiveChar(null);
+      setCharacterInput('');
+    }
+  };
 
   const exportData = useMemo(() => glyphs.map((entry) => {
     try {
@@ -190,8 +202,8 @@ const ProjectManager = ({ className }: { className?: string }) => {
       <ul className={styles.glyphList}>
         {glyphs.map((entry) => (
           <li key={entry.char}>
-            <button className={styles.charButton} onClick={() => loadGlyph(entry.source)} title={`${entry.char} — Open in editor`}>{unicodeLabel(entry.char)}</button>
-            <button onClick={() => { loadGlyph(entry.source); }}>Edit</button>
+            <button className={`${styles.charButton} ${activeChar === entry.char ? styles.activeChar : ''}`} onClick={() => loadGlyph(entry.char, entry.source)} title={`${entry.char} — Open in editor`}>{unicodeLabel(entry.char)}</button>
+            <button onClick={() => { loadGlyph(entry.char, entry.source); }}>Edit</button>
             <button onClick={() => deleteGlyph(entry.char)}>Delete</button>
           </li>
         ))}

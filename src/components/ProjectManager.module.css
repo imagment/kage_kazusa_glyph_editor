@@ -72,3 +72,8 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+
+.activeChar {
+  outline: 2px solid #2563eb;
+  background: #dbeafe;
+}
