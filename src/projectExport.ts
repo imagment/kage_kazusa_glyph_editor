@@ -5,6 +5,7 @@ import { Polygons } from '@kurgm/kage-engine';
 export interface ProjectGlyph {
   char: string;
   source: string;
+  combining?: boolean;
 }
 
 export interface FontProject {
@@ -50,11 +51,11 @@ export const downloadProject = (project: FontProject) => {
   downloadBlob(blob, `${project.name || 'kage-project'}.kage.json`);
 };
 
-export const downloadFont = (fontName: string, glyphs: { char: string; polygons: Polygons[] }[]) => {
+export const downloadFont = (fontName: string, glyphs: { char: string; polygons: Polygons[]; combining?: boolean }[]) => {
   const fontGlyphs: opentype.Glyph[] = [
     new opentype.Glyph({ name: '.notdef', unicode: 0, advanceWidth: 1000, path: new opentype.Path() }),
   ];
-  glyphs.forEach(({ char, polygons }) => {
+  glyphs.forEach(({ char, polygons, combining }) => {
     if (!char || char.length === 0) return;
     const codePoint = Array.from(char)[0].codePointAt(0);
     if (typeof codePoint === 'undefined') return;
@@ -71,7 +72,7 @@ export const downloadFont = (fontName: string, glyphs: { char: string; polygons:
     fontGlyphs.push(new opentype.Glyph({
       name: `uni${codePoint.toString(16).toUpperCase()}`,
       unicode: codePoint,
-      advanceWidth: 1000,
+      advanceWidth: combining ? 0 : 1000,
       path,
     }));
   });

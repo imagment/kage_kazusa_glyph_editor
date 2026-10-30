@@ -38,6 +38,16 @@
   opacity: 0;
 }
 
+.combiningMode {
+ margin-left: 12px;
+}
+
+.combiningHint {
+ margin: 4px 0;
+ color: #555;
+ font-size: 12px;
+}
+
 .unicodeRange {
  display: flex;
  align-items: center;

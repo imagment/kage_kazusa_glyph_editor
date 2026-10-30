@@ -11,18 +11,19 @@ const STORAGE_KEY = 'kage-editor-project-v1';
 interface ProjectGlyph {
   char: string;
   source: string;
+  combining?: boolean;
 }
 
 const cloneGlyph = (glyph: Glyph): Glyph => glyph.map((line) => ({ ...line, value: [...line.value] }));
 
-const unicodeLabel = (char: string): string => {
+const unicodeLabel = (char: string, combining = false): string => {
   const codePoint = Array.from(char)[0]?.codePointAt(0);
   if (typeof codePoint === 'undefined') return char;
   const isPrivateUse = (codePoint >= 0xe000 && codePoint <= 0xf8ff)
     || (codePoint >= 0xf0000 && codePoint <= 0xffffd)
     || (codePoint >= 0x100000 && codePoint <= 0x10fffd);
   const isControl = codePoint <= 0x1f || (codePoint >= 0x7f && codePoint <= 0x9f);
-  if (!isPrivateUse && !isControl) return char;
+  if (!isPrivateUse && !isControl && !combining) return char;
   const width = codePoint <= 0xffff ? 4 : 6;
   return `U+${codePoint.toString(16).toUpperCase().padStart(width, '0')}`;
 };
@@ -41,6 +42,7 @@ const ProjectManager = ({ className }: { className?: string }) => {
   const shotai = useAppSelector((state) => state.shotai);
   const [characterInput, setCharacterInput] = useState('');
   const [activeChar, setActiveChar] = useState<string | null>(null);
+  const [combiningMode, setCombiningMode] = useState(false);
   const [unicodeStart, setUnicodeStart] = useState('E000');
   const [unicodeEnd, setUnicodeEnd] = useState('E01F');
   const [glyphs, setGlyphs] = useState<ProjectGlyph[]>(() => {
@@ -76,7 +78,7 @@ const ProjectManager = ({ className }: { className?: string }) => {
     const next = [...glyphs];
     characters.forEach((char) => {
       const index = next.findIndex((entry) => entry.char === char);
-      const entry = { char, source: unparseGlyph(cloneGlyph(glyph)) };
+      const entry = { char, source: unparseGlyph(cloneGlyph(glyph)), combining: combiningMode };
       if (index >= 0) next[index] = entry;
       else next.push(entry);
     });
@@ -91,7 +93,7 @@ const ProjectManager = ({ className }: { className?: string }) => {
     }
     const next = [...glyphs];
     characters.forEach((char) => {
-      if (!next.some((entry) => entry.char === char)) next.push({ char, source: '' });
+      if (!next.some((entry) => entry.char === char)) next.push({ char, source: '', combining: combiningMode });
     });
     persist(next);
   };
@@ -110,14 +112,15 @@ const ProjectManager = ({ className }: { className?: string }) => {
     const next = [...glyphs];
     for (let codePoint = start; codePoint <= end; codePoint++) {
       const char = String.fromCodePoint(codePoint);
-      if (!next.some((entry) => entry.char === char)) next.push({ char, source: '' });
+      if (!next.some((entry) => entry.char === char)) next.push({ char, source: '', combining: combiningMode });
     }
     persist(next);
   };
 
-  const loadGlyph = (char: string, source: string) => {
+  const loadGlyph = (char: string, source: string, combining?: boolean) => {
     setActiveChar(char);
     setCharacterInput(char);
+    setCombiningMode(Boolean(combining));
     dispatch(editorActions.setGlyph(parseGlyph(source)));
   };
   const deleteGlyph = (char: string) => {
@@ -151,7 +154,7 @@ const ProjectManager = ({ className }: { className?: string }) => {
 
   const exportTtf = () => {
     try {
-      downloadFont(fontName, exportData.map(({ char, polygons }) => ({ char, polygons })));
+      downloadFont(fontName, exportData.map(({ char, polygons, combining }) => ({ char, polygons, combining })));
     } catch (error) {
       console.error(error);
       window.alert(error instanceof Error ? error.message : 'TTF export failed.');
@@ -180,6 +183,15 @@ const ProjectManager = ({ className }: { className?: string }) => {
         Font name
         <input value={fontName} onChange={(event) => setFontName(event.target.value)} />
       </label>
+      <label className={styles.combiningMode}>
+        <input
+          type="checkbox"
+          checked={combiningMode}
+          onChange={(event) => setCombiningMode(event.target.checked)}
+        />
+        Combining glyph mode
+      </label>
+      {combiningMode && <p className={styles.combiningHint}>Created glyphs use zero advance width, such as U+20D7.</p>}
       <label>
         Characters (paste as many characters as needed)
         <input value={characterInput} onChange={(event) => setCharacterInput(event.target.value)} placeholder="ABCあいう" />
@@ -202,8 +214,8 @@ const ProjectManager = ({ className }: { className?: string }) => {
       <ul className={styles.glyphList}>
         {glyphs.map((entry) => (
           <li key={entry.char}>
-            <button className={`${styles.charButton} ${activeChar === entry.char ? styles.activeChar : ''}`} onClick={() => loadGlyph(entry.char, entry.source)} title={`${entry.char} — Open in editor`}>{unicodeLabel(entry.char)}</button>
-            <button onClick={() => { loadGlyph(entry.char, entry.source); }}>Edit</button>
+            <button className={`${styles.charButton} ${activeChar === entry.char ? styles.activeChar : ''}`} onClick={() => loadGlyph(entry.char, entry.source, entry.combining)} title={`${entry.char} — Open in editor`}>{unicodeLabel(entry.char, entry.combining)}</button>
+            <button onClick={() => { loadGlyph(entry.char, entry.source, entry.combining); }}>Edit</button>
             <button onClick={() => deleteGlyph(entry.char)}>Delete</button>
           </li>
         ))}
