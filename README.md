@@ -100,6 +100,8 @@ javascript:(function(l,f){l.href='https://kurgm.github.io/kage-editor/#ssl='+(l.
 
 Localized messages are maintained as JSON files under [src/locales/](src/locales/) folder. Feedback or correction of mistranslations is greatly appreciated if you find any.
 
+기존의 Kage Editor과 달라진 점은 SVG와 ttf를 내려 받는 것을 보다 더 용이하게 하였다는 점입니다.
+
 ## ライセンス
 
 [GPL-3.0-only](COPYING)
